@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: PetProjectWeather
+  datasource:
+    url: jdbc:postgresql://localhost:5432/petWeather
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+geo:
+  cities:
+    moscow:
+      latitude: 55.75
+      longitude: 37.625
+    london:
+      latitude: 51.5074
+      longitude: -0.1278
