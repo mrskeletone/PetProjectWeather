@@ -11,11 +11,11 @@ import org.springframework.web.client.RestClient;
 import java.util.Map;
 
 @Service
-public class WeatherOpenMeteoService implements WeatherAPI {
+public class IWeatherOpenMeteoService implements IWeatherAPI {
     private final RestClient restClient;
     private final CityService cityService;
 
-    public WeatherOpenMeteoService(CityService cityService) {
+    public IWeatherOpenMeteoService(CityService cityService) {
         this.restClient = RestClient.builder().build();
         this.cityService=cityService;
     }
