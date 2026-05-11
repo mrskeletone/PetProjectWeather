@@ -1,7 +1,9 @@
 package org.example.petprojectweather.service;
 
 import org.example.petprojectweather.dao.CityRepository;
+import org.example.petprojectweather.dto.CityDto;
 import org.example.petprojectweather.entity.City;
+import org.example.petprojectweather.mapper.CityMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +26,9 @@ public class CityService {
         }else{
             throw  new IllegalArgumentException("Неизвестный город "+name);
         }
+    }
+    public City saveNewCity(CityDto city){
+        return cityRepository.save(CityMapper.dtoToCity(city));
     }
 
 }

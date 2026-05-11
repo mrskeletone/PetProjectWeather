@@ -1,12 +1,11 @@
 package org.example.petprojectweather.rs;
 
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.example.petprojectweather.dto.CityDto;
 import org.example.petprojectweather.dto.WeatherCity;
+import org.example.petprojectweather.service.CityService;
 import org.example.petprojectweather.service.IWeatherAPI;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,15 +14,23 @@ import org.springframework.web.bind.annotation.RestController;
 public class WeatherResource {
 
     private final IWeatherAPI IWeatherAPI;
+    private final CityService cityService;
 
-    public WeatherResource(IWeatherAPI IWeatherAPI) {
+    public WeatherResource(IWeatherAPI IWeatherAPI, CityService cityService) {
         this.IWeatherAPI = IWeatherAPI;
+        this.cityService = cityService;
     }
 
     @GET
+    @Path("/{city}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response getWeatherAroundCity(@QueryParam("city") String city){
+    public Response getWeatherAroundCity(@PathParam("city") String city){
         WeatherCity weatherCity= IWeatherAPI.getWeatherAroundCity(city);
         return Response.ok().entity(weatherCity).build();
+    }
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response postCity(CityDto cityDto){
+        return Response.status(Response.Status.CREATED).entity(cityService.saveNewCity(cityDto)).build();
     }
 }
