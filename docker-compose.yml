@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:15.1-alpine3.17
+    container_name: pet_weather
+    volumes:
+      - postgres_data_pet_weather:/var/lib/postgresql/data/
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: petWeather
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+volumes:
+  postgres_data_pet_weather:
