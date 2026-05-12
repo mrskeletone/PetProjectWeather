@@ -30,5 +30,7 @@ public class CityService {
     public City saveNewCity(CityDto city){
         return cityRepository.save(CityMapper.dtoToCity(city));
     }
-
+    public void deleteCitiesByCityName(String name){
+        cityRepository.deleteCitiesByCityName(name);
+    }
 }

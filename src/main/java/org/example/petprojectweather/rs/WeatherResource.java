@@ -33,4 +33,17 @@ public class WeatherResource {
     public Response postCity(CityDto cityDto){
         return Response.status(Response.Status.CREATED).entity(cityService.saveNewCity(cityDto)).build();
     }
+    @GET
+    @Path("/cities")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response getAllCites(){
+        return Response.ok().entity(cityService.getAllCity()).build();
+    }
+    @DELETE
+    @Path("/{city}")
+    @Consumes
+    public Response deleteCity(@PathParam("city")String city){
+        cityService.deleteCitiesByCityName(city);
+        return Response.ok().build();
+    }
 }
