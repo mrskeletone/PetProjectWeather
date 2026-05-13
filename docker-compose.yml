@@ -20,7 +20,7 @@ services:
       - "9000:9000"
       - "9009:9009"
     volumes:
-      - ./clickhouse/data:/var/lib/clickhouse
+      - clickhouse_data_pet_weather:/var/lib/clickhouse
       - ./clickhouse/logs:/var/log/clickhouse-server
       - ./clickhouse/config.d:/etc/clickhouse-server/config.d
       - ./clickhouse/user.d:/etc/clickhouse-server/users.d
@@ -36,4 +36,5 @@ services:
     restart: unless-stopped
 volumes:
   postgres_data_pet_weather:
+  clickhouse_data_pet_weather:
 
