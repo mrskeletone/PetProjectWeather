@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:15.1-alpine3.17
-    container_name: pet_weather
+    container_name: pet_weather_postgres
     volumes:
       - postgres_data_pet_weather:/var/lib/postgresql/data/
     restart: always
@@ -11,5 +11,29 @@ services:
       POSTGRES_DB: petWeather
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: pet_weather_clickhouse
+    hostname: clickhouse
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+      - "9009:9009"
+    volumes:
+      - ./clickhouse/data:/var/lib/clickhouse
+      - ./clickhouse/logs:/var/log/clickhouse-server
+      - ./clickhouse/config.d:/etc/clickhouse-server/config.d
+      - ./clickhouse/user.d:/etc/clickhouse-server/users.d
+    environment:
+      CLICKHOUSE_DB: pet_weather
+      CLICKHOUSE_USER: pet_user
+      CLICKHOUSE_PASSWORD: "qwerty"
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    restart: unless-stopped
 volumes:
   postgres_data_pet_weather:
+
