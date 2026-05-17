@@ -6,18 +6,18 @@ import jakarta.ws.rs.core.Response;
 import org.example.petprojectweather.dto.CityDto;
 import org.example.petprojectweather.dto.WeatherCity;
 import org.example.petprojectweather.service.CityService;
-import org.example.petprojectweather.service.IWeatherAPI;
+import org.example.petprojectweather.service.WeatherAPI;
 import org.springframework.web.bind.annotation.RestController;
 
 @Path("/weather")
 @RestController
 public class WeatherResource {
 
-    private final IWeatherAPI IWeatherAPI;
+    private final WeatherAPI WeatherAPI;
     private final CityService cityService;
 
-    public WeatherResource(IWeatherAPI IWeatherAPI, CityService cityService) {
-        this.IWeatherAPI = IWeatherAPI;
+    public WeatherResource(WeatherAPI WeatherAPI, CityService cityService) {
+        this.WeatherAPI = WeatherAPI;
         this.cityService = cityService;
     }
 
@@ -25,7 +25,7 @@ public class WeatherResource {
     @Path("/{city}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response getWeatherAroundCity(@PathParam("city") String city){
-        WeatherCity weatherCity= IWeatherAPI.getWeatherAroundCity(city);
+        WeatherCity weatherCity= WeatherAPI.getWeatherAroundCity(city);
         return Response.ok().entity(weatherCity).build();
     }
     @POST
