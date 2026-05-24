@@ -21,4 +21,11 @@ clickhouse:
     url: jdbc:clickhouse://localhost:8123/pet_weather
     user: pet_user
     password: qwerty
+jwt:
+  secret_code: XWnqftFMGY7ZcDhOpo2ybFF1XPl80jTdBXX38FPHDc6
+  exp_access: 900000
+  exp_refresh: 2592000000
+
+
+
 
