@@ -1,15 +1,19 @@
 package org.example.petprojectweather.rs;
 
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+
 import org.example.petprojectweather.dto.CityDto;
 import org.example.petprojectweather.dto.WeatherCity;
+import org.example.petprojectweather.entity.City;
 import org.example.petprojectweather.service.CityService;
 import org.example.petprojectweather.service.WeatherAPI;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-@Path("/weather")
+import java.util.List;
+
+@RequestMapping("/weather")
 @RestController
 public class WeatherResource {
 
@@ -21,29 +25,22 @@ public class WeatherResource {
         this.cityService = cityService;
     }
 
-    @GET
-    @Path("/{city}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response getWeatherAroundCity(@PathParam("city") String city){
+    @GetMapping(value = "/{city}",consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WeatherCity> getWeatherAroundCity(@PathVariable("city") String city){
         WeatherCity weatherCity= WeatherAPI.getWeatherAroundCity(city);
-        return Response.ok().entity(weatherCity).build();
+        return ResponseEntity.ok(weatherCity);
     }
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response postCity(CityDto cityDto){
-        return Response.status(Response.Status.CREATED).entity(cityService.saveNewCity(cityDto)).build();
+    @PostMapping(consumes=MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<City> postCity(@RequestBody CityDto cityDto){
+        return ResponseEntity.status(HttpStatus.CREATED).body(cityService.saveNewCity(cityDto));
     }
-    @GET
-    @Path("/cities")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response getAllCites(){
-        return Response.ok().entity(cityService.getAllCity()).build();
+    @GetMapping(value = "/cities",consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<City>> getAllCites(){
+        return ResponseEntity.ok(cityService.getAllCity());
     }
-    @DELETE
-    @Path("/{city}")
-    @Consumes
-    public Response deleteCity(@PathParam("city")String city){
+    @DeleteMapping("/{city}")
+    public ResponseEntity<Void> deleteCity(@PathVariable("city")String city){
         cityService.deleteCitiesByCityName(city);
-        return Response.ok().build();
+        return ResponseEntity.ok().build();
     }
 }
