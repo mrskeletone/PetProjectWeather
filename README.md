@@ -1,4 +1,3 @@
-```markdown
 # PetProjectWeather
 
 Сервис для получения текущей погоды (Open-Meteo), JWT-аутентификация и логирование запросов в ClickHouse.
@@ -153,4 +152,3 @@ src/main/java/org/example/petprojectweather/
 - **Асинхронная запись логов** – очередь Kafka
 - **Refresh Token Rotation**
 - **Мониторинг** – Grafana + ClickHouse
-```
