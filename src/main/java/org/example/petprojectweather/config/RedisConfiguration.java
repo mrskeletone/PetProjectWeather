@@ -35,7 +35,7 @@ class RedisConfiguration {
     public ApplicationRunner cleanAllRedis(RedisConnectionFactory connectionFactory) {
         return args -> {
             connectionFactory.getConnection().flushDb();  // очищает текущую БД
-            System.out.println("✅ Redis cache flushed");
+            System.out.println("Redis cache flushed");
         };
     }
 }
