@@ -74,12 +74,14 @@ public class JwtHelper {
     public String extractUsername(String token){
         return extractClaimsBody(token,Claims::getSubject);
     }
-    private boolean isTokenExpired(String token){
+    public boolean isTokenExpired(String token){
         return extractClaimsExpiry(token).before(new Date());
     }
     public boolean validationToken(String token, UserDetails userDetails){
         String username = extractUsername(token);
         return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
-
+    public long getRefreshTokenExpirationSeconds(){
+        return jwtProperty.getExp_refresh()/1000;
+    }
 }

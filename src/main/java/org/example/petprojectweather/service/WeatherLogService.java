@@ -1,6 +1,6 @@
 package org.example.petprojectweather.service;
 
-import org.example.petprojectweather.dao.WeatherLogRepository;
+import org.example.petprojectweather.repository.WeatherLogRepository;
 import org.example.petprojectweather.dto.WeatherLog;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;

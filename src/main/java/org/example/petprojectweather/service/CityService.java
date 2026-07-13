@@ -1,6 +1,6 @@
 package org.example.petprojectweather.service;
 
-import org.example.petprojectweather.dao.CityRepository;
+import org.example.petprojectweather.repository.CityRepository;
 import org.example.petprojectweather.dto.CityDto;
 import org.example.petprojectweather.entity.City;
 import org.example.petprojectweather.mapper.CityMapper;
