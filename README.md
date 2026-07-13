@@ -1,6 +1,3 @@
-Конечно! Я учёл твои изменения: переход на чистый Spring MVC, добавление Spring Security с JWT (access + refresh), конфигурацию `SecurityConfiguration`, использование `jjwt` и `jackson 3`. Держи актуальный `README.md`.
-
-```markdown
 # PetProjectWeather
 
 Сервис для получения погоды с OpenWeatherMap, JWT-аутентификацией и логированием запросов в ClickHouse.
@@ -162,4 +159,3 @@ src/main/java/org/example/petprojectweather/
 ---
 
 Проект создан как учебный полигон для современных Spring-приложений с разными типами хранилищ.
-```
