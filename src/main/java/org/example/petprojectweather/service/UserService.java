@@ -34,9 +34,11 @@ public class UserService {
     public Optional<User> getUserWithRoles(String username) {
         return userRepository.findByUsernameWithRoles(username);
     }
-    //TODO сделать проверку на уже существующего пользователя
     @Transactional
     public UserResponseDto registerNewUser(RegisterUser registerUser) {
+        if(userRepository.existsByUsername(registerUser.username())){
+            throw new IllegalArgumentException(registerUser.username());
+        }
         User user = new User();
         user.setUsername(registerUser.username());
         user.setPassword(passwordEncoder.encode(registerUser.password()));
