@@ -1,19 +1,20 @@
+```markdown
 # PetProjectWeather
 
-Сервис для получения погоды с OpenWeatherMap, JWT-аутентификацией и логированием запросов в ClickHouse.
+Сервис для получения текущей погоды (Open-Meteo), JWT-аутентификация и логирование запросов в ClickHouse.
 
 ## 🧰 Стек
 
 - **Java 26** / **Spring Boot 4.0.6**
-- **Spring MVC** — REST API
-- **Spring Security** — аутентификация и доступ
-- **JWT (jjwt 0.13.0)** — access + refresh токены
-- **PostgreSQL** — основные данные (JPA/Hibernate)
-- **ClickHouse** — аналитическое логирование запросов
-- **Redis** (зависимость добавлена) — кэш координат городов (готовится)
-- **Jackson 3.1.2** — JSON-сериализация
-- **Docker Compose** — контейнеры для PostgreSQL и ClickHouse
-- **Testcontainers** — тестирование с реальными БД
+- **Spring MVC** – REST API
+- **Spring Security** – аутентификация и авторизация
+- **JWT (jjwt 0.13.0)** – access + refresh токены
+- **PostgreSQL** – основные данные (JPA/Hibernate)
+- **ClickHouse** – аналитическое логирование запросов
+- **Redis** – кэш (зависимость добавлена, готовится к использованию)
+- **Jackson 3.1.2** – JSON-сериализация
+- **Docker Compose** – контейнеры для PostgreSQL и ClickHouse
+- **Testcontainers** – тестирование с реальными БД
 
 ## 🚀 Быстрый старт
 
@@ -22,12 +23,16 @@
 - Docker и Docker Compose
 - Maven (или `./mvnw`)
 
-### 2. Ключ погоды
-Зарегистрируйтесь на [OpenWeatherMap](https://openweathermap.org/api) и укажите ключ в `application.yml`:
-```yaml
-weather:
-  api-key: ваш_api_ключ
+### 2. API погоды
+Используется **Open-Meteo** – бесплатный, без API-ключа.  
+URL и параметры заданы в классе `Utils`:
+
+```java
+public static String URL =
+    "https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,wind_speed_10m";
 ```
+
+Для работы достаточно передать координаты города.
 
 ### 3. Базы данных
 ```bash
@@ -41,17 +46,15 @@ docker-compose up -d
 ./mvnw spring-boot:run
 ```
 JPA создаст таблицы в PostgreSQL.  
-Таблица логов `weather_request_logs` в ClickHouse создаётся автоматически.
+Таблица `weather_request_logs` в ClickHouse создаётся автоматически.
 
 ## 🔐 Аутентификация и JWT
-
-Используется связка **access** (короткий) и **refresh** (долгий, в httpOnly cookie).
 
 | Endpoint | Метод | Описание |
 |----------|-------|----------|
 | `/auth/register` | POST | Регистрация нового пользователя |
-| `/auth/login` | POST | Вход, возвращает access-токен в JSON и refresh-токен в куке |
-| `/auth/refresh` | POST | Обновить токены (требуется кука `refresh_token`) |
+| `/auth/login` | POST | Вход, возвращает access-токен в JSON и refresh-токен в httpOnly cookie |
+| `/auth/refresh` | POST | Обновление токенов (требуется кука `refresh_token`) |
 
 ### Регистрация
 ```http
@@ -78,7 +81,7 @@ Content-Type: application/json
 ```json
 { "accessToken": "eyJhbGci..." }
 ```
-+ **httpOnly cookie** `refresh_token` (используется для `/auth/refresh`).
++ **httpOnly cookie** `refresh_token`.
 
 ### Защищённые эндпоинты
 Передавайте access-токен в заголовке:
@@ -88,57 +91,52 @@ Authorization: Bearer <accessToken>
 
 ## 🌤️ Получение погоды
 
+Эндпоинт принимает координаты (или город, если реализован геокодер).  
+Пример для прямых координат:
+
 ```http
-GET /api/weather/{city}
+GET /api/weather?lat=55.75&lon=37.62
 Authorization: Bearer <accessToken>
 ```
-Пример:
-```bash
-curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/weather/London
-```
-Запрос логируется в ClickHouse (город, тело ответа, статус, длительность).
 
-## 📊 Логирование в ClickHouse
+Ответ – JSON с текущей температурой и скоростью ветра.
+
+Каждый запрос логируется в ClickHouse (город/координаты, тело ответа, статус, длительность).
+
+## 🗂️ Логирование в ClickHouse
 
 Просмотр логов:
 ```bash
-# HTTP-запрос
 curl "http://localhost:8123/?query=SELECT+*+FROM+pet_weather.weather_request_logs+FORMAT+JSONEachRow"
-
-# Или через клиент внутри контейнера
+```
+или через контейнер:
+```bash
 docker exec -it pet_weather_clickhouse clickhouse-client -u pet_user --password qwerty -d pet_weather
 ```
 
 ## ⚙️ Конфигурация безопасности
 
-`SecurityConfiguration` настраивает:
-- Публичные эндпоинты: `/auth/login`, `/auth/register`, `/auth/refresh`
+`SecurityConfiguration`:
+- Публичные эндпоинты: `/auth/**`
 - Все остальные запросы требуют аутентификации
-- Stateless-сессии (без кук JSESSIONID)
-- Подключение кастомного `JwtFilter` перед `UsernamePasswordAuthenticationFilter`
+- Stateless-сессии
+- `JwtFilter` проверяет access-токен и устанавливает `SecurityContext`
 - `BCryptPasswordEncoder(12)` для паролей
-
-JWT-фильтр извлекает токен из заголовка `Authorization`, валидирует и устанавливает `SecurityContext`.
 
 ## 🧱 Структура проекта
 
 ```
 src/main/java/org/example/petprojectweather/
-├── config/
-│   ├── SecurityConfiguration.java   — Spring Security + цепочка фильтров
-│   └── ClickHouseConfig.java        — DataSource для ClickHouse
-├── controller/
-│   ├── LoginController.java         — /auth/**
-│   └── WeatherController.java       — /api/weather/**
-├── dto/                             — LoginDto, RegisterUser, TokenResponse, UserResponseDto…
-├── jwt/
-│   ├── JwtFilter.java               — фильтр access-токенов
-│   └── JwtService.java              — создание и проверка JWT
-├── model/                           — JPA-сущности (User…)
-├── service/
-│   ├── UserService.java             — регистрация, логин, управление refresh-токенами
-│   ├── WeatherService.java          — обращение к OpenWeatherMap
-│   └── RequestLogService.java       — запись логов в ClickHouse
+├── config/                     – SecurityConfiguration, ClickHouseConfig
+├── controller/                 – LoginController, WeatherController
+├── dto/                        – LoginDto, RegisterUser, TokenResponse, UserResponseDto…
+├── entity/                     – JPA-сущности (User…)
+├── handler/                    – обработчики (например, глобальный exception handler)
+├── jwt/                        – JwtFilter, JwtService
+├── mapper/                     – мапперы между DTO и сущностями
+├── repository/                 – Spring Data JPA репозитории
+├── service/                    – UserService, WeatherService, RequestLogService
+├── Utils.java                  – константы (URL API)
 └── PetProjectWeatherApplication.java
 ```
 
@@ -147,15 +145,12 @@ src/main/java/org/example/petprojectweather/
 ```bash
 ./mvnw test
 ```
-Использует Testcontainers для PostgreSQL и (при необходимости) ClickHouse.
+Использует Testcontainers для временных экземпляров PostgreSQL и ClickHouse.
 
-## 📈 Дальнейшее развитие
+## 📈 Дальнейшие планы
 
-- **Redis-кэш** координат городов (зависимость уже есть)
-- **Асинхронная запись** логов через Kafka
-- **Refresh Token Rotation** и отзыв токенов
-- **Мониторинг** через Grafana + ClickHouse
-
----
-
-Проект создан как учебный полигон для современных Spring-приложений с разными типами хранилищ.
+- **Redis** – кэширование координат городов
+- **Асинхронная запись логов** – очередь Kafka
+- **Refresh Token Rotation**
+- **Мониторинг** – Grafana + ClickHouse
+```
